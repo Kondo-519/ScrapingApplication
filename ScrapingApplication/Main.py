@@ -22,18 +22,14 @@ class_name = "tb_syousai"
 
 #スープ渡し器オブジェクトを生成
 parse_only_header = SoupStrainer(tag_name, class_=class_name)
+
 #html構造の取得
 soup = BeautifulSoup(response.text, use_parser , parse_only=parse_only_header)
-
-tag = soup.find_all("th")
-tag.name = "td"
-
-
 
 #soup結果から、tr要素を持つ行をrowオブジェクトとして定義し、リスト化。for文でぐるぐる回す。
 #row要素からタグ名を指定してtextを引っ張り出す。
 table_data = [[row.th.text, row.td.text]
-                         for row in BeautifulSoup(response.text, use_parser , parse_only=parse_only_header)("tr")]
+                         for row in soup("tr")]
 
 #もし、同じタグ要素のセルが連続していたら、以下のようにfor文でぐるぐる回すように。
 #参考URL：https://stackoverflow.com/questions/18544634/convert-a-html-table-to-json
@@ -42,4 +38,5 @@ table_data = [[row.th.text, row.td.text]
 
 
 #配列データを辞書形式に変更し、それをjson形式に変更。Unicodeエスケープされないよう、オプションで指定。
-print(json.dumps(dict(table_data), ensure_ascii=False))
+json_data = json.dumps(dict(table_data), ensure_ascii=False)
+print(json_data)
