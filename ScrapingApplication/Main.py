@@ -1,6 +1,8 @@
 
 import requests
 import json
+import datetime
+import urllib.parse
 from bs4 import BeautifulSoup, SoupStrainer
  
 # textからlistとかに変換
@@ -36,6 +38,25 @@ table_data = [[row.th.text, row.td.text]
 #table_data = [[cell.text for cell in row("td")]
 #                         for row in BeautifulSoup(response.text, use_parser , parse_only=parse_only_header)("tr")]
 
+#タイムゾーンを指定しつつ、今日日付を取得
+#https://note.nkmk.me/python-datetime-now-today/
+d_today_utc = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=9), name='JST')).date()
+
+#リストに追加。
+table_data.append(["Regist Date", d_today_utc.strftime('%Y/%m/%d')])
+
+#URLのクエリ文字列を辞書に変換
+#https://note.nkmk.me/python-urllib-parse-query-string/
+qs_d = urllib.parse.parse_qs(url)
+
+#都市コードを取得
+table_data.append(["cityID", qs_d['city[]'][0]])
+
+#建物IDを設定
+table_data.append(["buildingID", qs_d['bid'][0]])
+
+
+print(table_data)
 
 #配列データを辞書形式に変更し、それをjson形式に変更。Unicodeエスケープされないよう、オプションで指定。
 json_data = json.dumps(dict(table_data), ensure_ascii=False)
