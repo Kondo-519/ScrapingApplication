@@ -24,7 +24,6 @@
     <Compile Include="Main.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="ScrapingApplication.py" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="NewFolder1\" />
