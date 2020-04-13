@@ -27,6 +27,12 @@
     <Compile Include="Main.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="scrape_apartment.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="store_apartment.py">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="NewFolder1\" />
