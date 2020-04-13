@@ -3,9 +3,15 @@ import requests
 import json
 import datetime
 import urllib.parse
+import boto3
 from bs4 import BeautifulSoup, SoupStrainer
 
 def lambda_handler(event, context):
+    #SQSからURL群を受領。
+    #Todo パラメータNull時のError処理
+    for get_url in event['URLs']:
+       url = get_url
+
     # textからlistとかに変換
     url = "https://s.fudousan.or.jp/system/?act=d&type=31&pref=13&stype=l&city[]=13101&n=20&p=1&v=on&s=&bid=14090023&org=ZN"
     
@@ -44,17 +50,20 @@ def lambda_handler(event, context):
     d_today_utc = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=9), name='JST')).date()
     
     #リストに追加。
-    table_data.append(["Regist Date", d_today_utc.strftime('%Y/%m/%d')])
+    regist_date =  d_today_utc.strftime('%Y-%m-%d')
+    table_data.append(["Regist Date", regist_date])
     
     #URLのクエリ文字列を辞書に変換
     #https://note.nkmk.me/python-urllib-parse-query-string/
     qs_d = urllib.parse.parse_qs(url)
     
     #都市コードを取得
-    table_data.append(["cityID", qs_d['city[]'][0]])
+    city_id = qs_d['city[]'][0]
+    table_data.append(["cityID", city_id])
     
     #建物IDを設定
-    table_data.append(["buildingID", qs_d['bid'][0]])
+    building_id = qs_d['bid'][0]
+    table_data.append(["buildingID", building_id])
 
 
     #print(table_data)
@@ -63,4 +72,14 @@ def lambda_handler(event, context):
     json_data = json.dumps(dict(table_data), ensure_ascii=False)
     #print(json_data)
     
+    #https://recipe.kc-cloud.jp/archives/10058
+    s3 = boto3.resource('s3') 
+
+    bucket = 'apartment-history'
+    key = city_id + '_'+ building_id + '_'+ regist_date + '.json' 
+    file_contents = json_data
+
+    obj = s3.Object(bucket,key) 
+    obj.put( Body=file_contents )
+
     return json_data
